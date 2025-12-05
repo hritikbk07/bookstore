@@ -8,13 +8,44 @@ import { Navigation, Pagination } from 'swiper/modules';
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-
-import List from '../../public/list.json';  
+ 
 import Cards from './Cards';
+import { useState } from 'react';
+import { useEffect } from 'react';
+import axios from 'axios';
 
 function Freebooks() {
-    const filterData = List.filter((data) => data.category === "free");
-    console.log(filterData);
+    const [book, setBook] = useState([]);
+
+    useEffect(() => {
+        const getBook = async () => {
+            try {
+                const res = await axios.get('http://localhost:4001/book');
+
+                const data = res.data.filter((data) => data.category === "free");
+                console.log(data);
+                setBook(data);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        getBook();
+    }, []);
+
+    var setting = {
+        className: "w-full h-full py-6 select-none",
+        modules: [Navigation, Pagination],
+        navigation: true,
+        pagination: { clickable: true },
+        spaceBetween: 20,
+        slidesPerView: 1,
+        breakpoints: {
+            480: { slidesPerView: 1 },
+            640: { slidesPerView: 2 },
+            768: { slidesPerView: 3 },
+            1024: { slidesPerView: 3 },
+        }
+    };
 
     return (
         <>
@@ -23,26 +54,12 @@ function Freebooks() {
                 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium veritatis alias pariatur ad dolor repudiandae eligendi corporis nulla non suscipit, iure neque earum?</p>
 
                 <div className='mt-6'>
-                    <Swiper
-                        className="w-full h-full py-6 select-none"
-                        modules={[Navigation, Pagination]}
-                        navigation
-                        pagination={{ clickable: true }}
-                        spaceBetween={20}
-                        slidesPerView={1}
-                        breakpoints={{
-                            480: { slidesPerView: 1 },
-                            640: { slidesPerView: 2 },
-                            768: { slidesPerView: 3 },
-                            1024: { slidesPerView: 3},
-                        }}
-                     >
-                        {/* Example static slides */}
-                         {filterData.map((item) => (
-                        <SwiperSlide key={item.id} className="flex justify-center">
-                            <Cards item={item} />
-                        </SwiperSlide>
-                    ))}
+                    <Swiper {...setting}>
+                        {book.map((item) => (
+                            <SwiperSlide key={item.id} className="flex justify-center">
+                                <Cards item={item} />
+                            </SwiperSlide>
+                        ))}
                     </Swiper>
                 </div>
             </div>
